@@ -1,0 +1,78 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.10.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+
+group = 'net.malpiszon'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-web') {
+        exclude module: "spring-boot-starter-tomcat"
+    }
+    compile("org.springframework.boot:spring-boot-starter-jetty")
+    compile("io.springfox:springfox-swagger2:2.6.1")
+    compile("io.springfox:springfox-swagger-ui:2.6.1")
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+checkstyle {
+    toolVersion = "7.6"
+}
+
+findbugs {
+    ignoreFailures = false
+    toolVersion = "3.0.1"
+    effort = "max"
+    reportsDir = file("$project.buildDir/reports/findbugs")
+}
+
+findbugsMain {
+    reports {
+        xml.enabled = true
+    }
+}
+
+pmd {
+    sourceSets = [sourceSets.main]
+    ignoreFailures = true
+    toolVersion = '5.5.4'
+    ruleSets = [
+            'java-basic',
+            'java-braces',
+            'java-clone',
+            'java-codesize',
+            'java-design',
+            'java-empty',
+            'java-finalizers',
+            'java-imports',
+            'java-logging-java',
+            'java-migrating',
+            'java-strictexception',
+            'java-strings',
+            'java-typeresolution',
+            'java-unnecessary',
+            'java-unusedcode'
+    ]
+}
