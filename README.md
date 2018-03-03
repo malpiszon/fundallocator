@@ -1,4 +1,4 @@
-#FundAllocator 
+# FundAllocator 
 ## General information
 FundAllocator is SpringBoot REST app that allocates given amount of money for given Funds using given strategy.
 
