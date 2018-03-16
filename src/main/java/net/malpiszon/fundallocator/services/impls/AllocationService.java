@@ -25,8 +25,8 @@ public class AllocationService implements IAllocationService {
         FundAllocationsDto fundAllocations = new FundAllocationsDto();
 
         investmentType.getFundsTypePercentages().forEach(
-            (k, v) -> addAllocationForFundType(fundAllocations, amount, v,
-                    fundRepository.findByFundTypeAndIdIn(k, fundIds))
+                (k, v) -> addAllocationForFundType(fundAllocations, amount, v,
+                        fundRepository.findByFundTypeAndIdIn(k, fundIds))
         );
 
         if (amount.subtract(fundAllocations.getCurrentAllocation()).compareTo(BigInteger.ZERO) > 0) {
@@ -38,20 +38,21 @@ public class AllocationService implements IAllocationService {
 
     private void addAllocationForFundType(FundAllocationsDto fundAllocations, BigInteger amount, Integer percent,
                                           List<Fund> funds) {
-        if (!funds.isEmpty()) {
-            BigInteger amountForFundType = amount.multiply(BigInteger.valueOf(percent))
-                    .divide(BigInteger.valueOf(100));
-            if (amountForFundType.compareTo(BigInteger.ZERO) <= 0) {
-                return;
-            }
+        if (funds.isEmpty()) {
+            return;
+        }
+        BigInteger amountForFundType = amount.multiply(BigInteger.valueOf(percent))
+                .divide(BigInteger.valueOf(100));
+        if (amountForFundType.compareTo(BigInteger.ZERO) <= 0) {
+            return;
+        }
 
-            BigInteger amountForSingleFund = amountForFundType.divide(BigInteger.valueOf(funds.size()));
-            BigInteger amountToShare = amountForFundType
-                    .subtract(amountForSingleFund.multiply(BigInteger.valueOf(funds.size())));
+        BigInteger amountForSingleFund = amountForFundType.divide(BigInteger.valueOf(funds.size()));
+        BigInteger amountToShare = amountForFundType
+                .subtract(amountForSingleFund.multiply(BigInteger.valueOf(funds.size())));
 
-            for (Fund fund : funds) {
-                amountToShare = addAllocationForFund(fundAllocations, amount, amountForSingleFund, amountToShare, fund);
-            }
+        for (Fund fund : funds) {
+            amountToShare = addAllocationForFund(fundAllocations, amount, amountForSingleFund, amountToShare, fund);
         }
     }
 
