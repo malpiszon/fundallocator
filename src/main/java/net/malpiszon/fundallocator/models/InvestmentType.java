@@ -12,7 +12,7 @@ public enum InvestmentType {
     BALANCED(constructFundsTypePercentage(30, 60, 10)),
     AGGRESSIVE(constructFundsTypePercentage(40, 20, 40));
 
-    Map<FundType, Integer> fundTypePercentage;
+    final Map<FundType, Integer> fundTypePercentage;
 
     InvestmentType(Map<FundType, Integer> fundTypePercentage) {
         this.fundTypePercentage = fundTypePercentage;
@@ -40,6 +40,6 @@ public enum InvestmentType {
     }
 
     private static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> entriesToMap() {
-        return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
+        return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
     }
 }

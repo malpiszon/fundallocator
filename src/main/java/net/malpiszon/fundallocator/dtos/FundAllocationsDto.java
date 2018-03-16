@@ -2,6 +2,7 @@ package net.malpiszon.fundallocator.dtos;
 
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -47,13 +48,18 @@ public class FundAllocationsDto {
         private final Fund fund;
         private final BigInteger allocation;
         private final double percent;
-        private final DecimalFormat df = new DecimalFormat("##.##%");
+        private final DecimalFormat df;
 
         public FundAllocation(int lp, Fund fund, BigInteger allocation, double percent) {
             this.lp = lp;
             this.fund = fund;
             this.allocation = allocation;
             this.percent = percent;
+
+            DecimalFormatSymbols formatSymbols = new DecimalFormatSymbols();
+            formatSymbols.setDecimalSeparator(',');
+            formatSymbols.setGroupingSeparator(' ');
+            df = new DecimalFormat("##.##%", formatSymbols);
         }
 
         public int getLp() {

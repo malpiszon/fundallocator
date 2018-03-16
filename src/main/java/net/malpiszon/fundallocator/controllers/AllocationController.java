@@ -43,9 +43,9 @@ public class AllocationController {
                     dataType = "integer", paramType = "query")
     })
     @RequestMapping(method = RequestMethod.GET)
-    public FundAllocationsDto getAllocation(@RequestParam(value = "amount", required = true) BigInteger amount,
-                                          @RequestParam(value = "type", required = true) String type,
-                                          @RequestParam(value = "fund", required = true) List<Long> funds)
+    public FundAllocationsDto getAllocation(@RequestParam(value = "amount") BigInteger amount,
+                                          @RequestParam(value = "type") String type,
+                                          @RequestParam(value = "fund") List<Long> funds)
             throws IllegalArgumentException {
 
         if (amount.compareTo(BigInteger.ZERO) <= 0) {

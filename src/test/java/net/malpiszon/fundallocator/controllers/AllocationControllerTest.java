@@ -37,28 +37,28 @@ public class AllocationControllerTest {
     @Test
     public void testGetAllocation_withoutParameters_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/allocation")
-                .contentType(MediaType.TEXT_PLAIN))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void testGetAllocation_withNegativeAmount_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/allocation?amount=-100&type=BALANCED&fund=1")
-                .contentType(MediaType.TEXT_PLAIN))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void testGetAllocation_withInvalidInvestType_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/allocation?amount=100&type=BLAH&fund=1")
-                .contentType(MediaType.TEXT_PLAIN))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void testGetAllocation_withInvalidFundId_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/allocation?amount=100&type=BALANCED&fund=blah")
-                .contentType(MediaType.TEXT_PLAIN))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 

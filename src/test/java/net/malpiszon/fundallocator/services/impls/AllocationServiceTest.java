@@ -140,7 +140,7 @@ public class AllocationServiceTest {
     @Test
     public void testGetAllocation_withSafeTypeAndAllFunds_returnsValidData() {
         FundAllocationsDto result = allocationService.getAllocation(amount, InvestmentType.SAFE, allFundsList);
-        Collections.sort(result.getAllocations(), fundAllocationComparator);
+        result.getAllocations().sort(fundAllocationComparator);
 
         Mockito.verify(fundRepository, Mockito.times(3))
                 .findByFundTypeAndIdIn(Mockito.any(FundType.class), Mockito.eq(allFundsList));
@@ -175,9 +175,9 @@ public class AllocationServiceTest {
     }
 
     @Test
-    public void testGetAllocation_withAggresiveTypeAndAllFunds_returnsValidData() {
+    public void testGetAllocation_withAggressiveTypeAndAllFunds_returnsValidData() {
         FundAllocationsDto result = allocationService.getAllocation(amount, InvestmentType.AGGRESSIVE, allFundsList);
-        Collections.sort(result.getAllocations(), fundAllocationComparator);
+        result.getAllocations().sort(fundAllocationComparator);
 
         Mockito.verify(fundRepository, Mockito.times(3))
                 .findByFundTypeAndIdIn(Mockito.any(FundType.class), Mockito.eq(allFundsList));
@@ -214,7 +214,7 @@ public class AllocationServiceTest {
     @Test
     public void testGetAllocation_withBalancedTypeAndAllFunds_returnsValidData() {
         FundAllocationsDto result = allocationService.getAllocation(amount, InvestmentType.BALANCED, allFundsList);
-        Collections.sort(result.getAllocations(), fundAllocationComparator);
+        result.getAllocations().sort(fundAllocationComparator);
 
         Mockito.verify(fundRepository, Mockito.times(3))
                 .findByFundTypeAndIdIn(Mockito.any(FundType.class), Mockito.eq(allFundsList));
@@ -252,7 +252,7 @@ public class AllocationServiceTest {
     public void testGetAllocation_withSafeTypeAndAllFundsAndNonAllocatableAmount_returnsValidData() {
         FundAllocationsDto result = allocationService.getAllocation(BigInteger.valueOf(10001),
                 InvestmentType.SAFE, allFundsList);
-        Collections.sort(result.getAllocations(), fundAllocationComparator);
+        result.getAllocations().sort(fundAllocationComparator);
 
         Mockito.verify(fundRepository, Mockito.times(3))
                 .findByFundTypeAndIdIn(Mockito.any(FundType.class), Mockito.eq(allFundsList));
