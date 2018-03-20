@@ -5,10 +5,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import net.malpiszon.fundallocator.dtos.FundAllocationDto;
 import net.malpiszon.fundallocator.dtos.FundAllocationsDto;
 import net.malpiszon.fundallocator.models.Fund;
 import net.malpiszon.fundallocator.models.FundType;
@@ -49,7 +49,7 @@ public class AllocationServiceTest {
     @MockBean
     private FundRepository fundRepository;
 
-    private final Comparator<FundAllocationsDto.FundAllocation> fundAllocationComparator = (o1, o2) -> {
+    private final Comparator<FundAllocationDto> fundAllocationComparator = (o1, o2) -> {
         int allocationCompareResult = o1.getAllocation().compareTo(o2.getAllocation());
         if (allocationCompareResult != 0) {
             return allocationCompareResult;

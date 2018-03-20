@@ -2,7 +2,10 @@ package net.malpiszon.fundallocator.services.impls;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
+import com.google.common.collect.Lists;
+import net.malpiszon.fundallocator.dtos.FundAllocationDto;
 import net.malpiszon.fundallocator.dtos.FundAllocationsDto;
 import net.malpiszon.fundallocator.models.Fund;
 import net.malpiszon.fundallocator.models.InvestmentType;
@@ -25,8 +28,8 @@ public class AllocationService implements IAllocationService {
         FundAllocationsDto fundAllocations = new FundAllocationsDto();
 
         investmentType.getFundsTypePercentages().forEach(
-                (k, v) -> addAllocationForFundType(fundAllocations, amount, v,
-                        fundRepository.findByFundTypeAndIdIn(k, fundIds))
+            (k, v) -> fundAllocations.addAllocations(getAllocationForFundType(amount, v,
+                fundRepository.findByFundTypeAndIdIn(k, fundIds)))
         );
 
         if (amount.subtract(fundAllocations.getCurrentAllocation()).compareTo(BigInteger.ZERO) > 0) {
@@ -36,15 +39,16 @@ public class AllocationService implements IAllocationService {
         return fundAllocations;
     }
 
-    private void addAllocationForFundType(FundAllocationsDto fundAllocations, BigInteger amount, Integer percent,
-                                          List<Fund> funds) {
+    private List<FundAllocationDto> getAllocationForFundType(BigInteger amount, Integer percent, List<Fund> funds) {
+        List<FundAllocationDto> allocationsForFundType = Lists.newArrayList();
+
         if (funds.isEmpty()) {
-            return;
+            return allocationsForFundType;
         }
         BigInteger amountForFundType = amount.multiply(BigInteger.valueOf(percent))
                 .divide(BigInteger.valueOf(100));
         if (amountForFundType.compareTo(BigInteger.ZERO) <= 0) {
-            return;
+            return allocationsForFundType;
         }
 
         BigInteger amountForSingleFund = amountForFundType.divide(BigInteger.valueOf(funds.size()));
@@ -52,22 +56,24 @@ public class AllocationService implements IAllocationService {
                 .subtract(amountForSingleFund.multiply(BigInteger.valueOf(funds.size())));
 
         for (Fund fund : funds) {
-            amountToShare = addAllocationForFund(fundAllocations, amount, amountForSingleFund, amountToShare, fund);
+            getAllocationForFund(amount, amountForSingleFund, amountToShare, fund)
+                    .ifPresent(allocationsForFundType::add);
+            amountToShare = BigInteger.ZERO;
         }
+
+        return allocationsForFundType;
     }
 
-    private BigInteger addAllocationForFund(FundAllocationsDto fundAllocations, BigInteger amount,
-                                            BigInteger amountForSingleFund, BigInteger amountToShare, Fund fund) {
+    private Optional<FundAllocationDto> getAllocationForFund(BigInteger amount, BigInteger amountForSingleFund,
+                                                             BigInteger amountToShare, Fund fund) {
         BigInteger amountForFund = amountForSingleFund;
         if (amountToShare.compareTo(BigInteger.ZERO) > 0) {
             amountForFund = amountForFund.add(amountToShare);
         }
         if (amountForFund.compareTo(BigInteger.ZERO) <= 0) {
-            return BigInteger.ZERO;
+            return Optional.empty();
         }
         double percentForFund = amountForFund.doubleValue() / amount.doubleValue();
-        fundAllocations.addAllocation(fund, amountForFund, percentForFund);
-
-        return BigInteger.ZERO;
+        return Optional.of(new FundAllocationDto(fund, amountForFund, percentForFund));
     }
 }

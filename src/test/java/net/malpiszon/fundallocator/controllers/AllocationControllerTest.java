@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigInteger;
 import java.util.List;
 
+import net.malpiszon.fundallocator.dtos.FundAllocationDto;
 import net.malpiszon.fundallocator.dtos.FundAllocationsDto;
 import net.malpiszon.fundallocator.models.Fund;
 import net.malpiszon.fundallocator.models.FundType;
@@ -72,8 +73,10 @@ public class AllocationControllerTest {
         List<Long> fundIds = Lists.newArrayList(fundId1, fundId2);
 
         FundAllocationsDto result = new FundAllocationsDto();
-        result.addAllocation(new Fund(fundId1, fundType, "nam1e"), BigInteger.valueOf(50), 0.5);
-        result.addAllocation(new Fund(fundId2, fundType, "name2"), BigInteger.valueOf(50), 0.5);
+        result.addAllocations(Lists.newArrayList(new FundAllocationDto(
+                new Fund(fundId1, fundType, "name1"), BigInteger.valueOf(50), 0.5)));
+        result.addAllocations(Lists.newArrayList(new FundAllocationDto(
+                new Fund(fundId2, fundType, "name2"), BigInteger.valueOf(50), 0.5)));
 
         when(allocationService.getAllocation(amount, investmentType, fundIds)).thenReturn(result);
 
@@ -83,6 +86,7 @@ public class AllocationControllerTest {
                 .andExpect(jsonPath("$.allocations", hasSize(2)))
                 .andExpect(jsonPath("$.allocations[0].fundType", is(fundType.toString())))
                 .andExpect(jsonPath("$.allocations[0].lp", is(1)))
+                .andExpect(jsonPath("$.allocations[1].lp", is(2)))
                 .andExpect(jsonPath("$.notAllocated", is(0)));
     }
 }
