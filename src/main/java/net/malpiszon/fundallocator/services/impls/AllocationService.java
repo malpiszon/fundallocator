@@ -6,12 +6,11 @@ import java.util.Optional;
 
 import com.google.common.collect.Lists;
 import net.malpiszon.fundallocator.dtos.FundAllocationDto;
+import net.malpiszon.fundallocator.dtos.FundAllocationRequestDto;
 import net.malpiszon.fundallocator.dtos.FundAllocationsDto;
 import net.malpiszon.fundallocator.models.Fund;
-import net.malpiszon.fundallocator.models.InvestmentType;
 import net.malpiszon.fundallocator.repositories.FundRepository;
 import net.malpiszon.fundallocator.services.IAllocationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,20 +19,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class AllocationService implements IAllocationService {
 
-    @Autowired
-    FundRepository fundRepository;
+    private final FundRepository fundRepository;
+
+    public AllocationService(FundRepository fundRepository) {
+        this.fundRepository = fundRepository;
+    }
 
     @Override
-    public FundAllocationsDto getAllocation(BigInteger amount, InvestmentType investmentType, List<Long> fundIds) {
+    public FundAllocationsDto getAllocation(FundAllocationRequestDto requestDto) {
         FundAllocationsDto fundAllocations = new FundAllocationsDto();
 
-        investmentType.getFundsTypePercentages().forEach(
-            (k, v) -> fundAllocations.addAllocations(getAllocationForFundType(amount, v,
-                fundRepository.findByFundTypeAndIdIn(k, fundIds)))
+        requestDto.getType().getFundsTypePercentages().forEach(
+            (k, v) -> fundAllocations.addAllocations(getAllocationForFundType(requestDto.getAmount(), v,
+                fundRepository.findByFundTypeAndIdIn(k, requestDto.getFund())))
         );
 
-        if (amount.subtract(fundAllocations.getCurrentAllocation()).compareTo(BigInteger.ZERO) > 0) {
-            fundAllocations.setNotAllocated(amount.subtract(fundAllocations.getCurrentAllocation()));
+        if (requestDto.getAmount().subtract(fundAllocations.getCurrentAllocation()).compareTo(BigInteger.ZERO) > 0) {
+            fundAllocations.setNotAllocated(requestDto.getAmount().subtract(fundAllocations.getCurrentAllocation()));
         }
 
         return fundAllocations;

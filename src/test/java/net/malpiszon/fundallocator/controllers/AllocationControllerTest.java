@@ -2,6 +2,11 @@ package net.malpiszon.fundallocator.controllers;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -11,6 +16,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 import net.malpiszon.fundallocator.dtos.FundAllocationDto;
+import net.malpiszon.fundallocator.dtos.FundAllocationRequestDto;
 import net.malpiszon.fundallocator.dtos.FundAllocationsDto;
 import net.malpiszon.fundallocator.models.Fund;
 import net.malpiszon.fundallocator.models.FundType;
@@ -19,6 +25,7 @@ import net.malpiszon.fundallocator.services.impls.AllocationService;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -69,8 +76,12 @@ public class AllocationControllerTest {
         InvestmentType investmentType = InvestmentType.BALANCED;
         long fundId1 = 1L;
         long fundId2 = 2L;
-        FundType fundType = FundType.POLISH;
         List<Long> fundIds = Lists.newArrayList(fundId1, fundId2);
+        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
+        requestDto.setAmount(amount);
+        requestDto.setType(investmentType);
+        requestDto.setFund(fundIds);
+        FundType fundType = FundType.POLISH;
 
         FundAllocationsDto result = new FundAllocationsDto();
         result.addAllocations(Lists.newArrayList(new FundAllocationDto(
@@ -78,7 +89,7 @@ public class AllocationControllerTest {
         result.addAllocations(Lists.newArrayList(new FundAllocationDto(
                 new Fund(fundId2, fundType, "name2"), BigInteger.valueOf(50), 0.5)));
 
-        when(allocationService.getAllocation(amount, investmentType, fundIds)).thenReturn(result);
+        when(allocationService.getAllocation(any(FundAllocationRequestDto.class))).thenReturn(result);
 
         mockMvc.perform(get("/api/allocation?amount=100&type=BALANCED&fund=1&fund=2")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -88,5 +99,12 @@ public class AllocationControllerTest {
                 .andExpect(jsonPath("$.allocations[0].lp", is(1)))
                 .andExpect(jsonPath("$.allocations[1].lp", is(2)))
                 .andExpect(jsonPath("$.notAllocated", is(0)));
+
+        ArgumentCaptor<FundAllocationRequestDto> fardCaptor = ArgumentCaptor.forClass(FundAllocationRequestDto.class);
+        verify(allocationService, times(1)).getAllocation(fardCaptor.capture());
+        assertEquals(amount, fardCaptor.getValue().getAmount());
+        assertEquals(investmentType, fardCaptor.getValue().getType());
+        assertEquals(fundIds, fardCaptor.getValue().getFund());
+        verifyNoMoreInteractions(allocationService);
     }
 }

@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import net.malpiszon.fundallocator.dtos.FundAllocationDto;
+import net.malpiszon.fundallocator.dtos.FundAllocationRequestDto;
 import net.malpiszon.fundallocator.dtos.FundAllocationsDto;
 import net.malpiszon.fundallocator.models.Fund;
 import net.malpiszon.fundallocator.models.FundType;
@@ -31,19 +32,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class AllocationServiceTest {
 
-    @TestConfiguration
-    static class AllocationServiceContextConfiguration {
-
-        @Bean
-        public IAllocationService consumptionService() {
-            return new AllocationService();
-        }
-    }
-
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
-    @Autowired
     private IAllocationService allocationService;
 
     @MockBean
@@ -78,6 +69,8 @@ public class AllocationServiceTest {
 
     @Before
     public void setUp() {
+        allocationService = new AllocationService(fundRepository);
+
         allFundsList = Lists.newArrayList(polishFundsList);
         allFundsList.addAll(foreignFundsList);
         allFundsList.addAll(financialFundsList);
@@ -90,7 +83,12 @@ public class AllocationServiceTest {
 
     @Test
     public void testGetAllocation_withSafeTypeAndOnlyPolishFunds_returnsValidData() {
-        FundAllocationsDto result = allocationService.getAllocation(amount, InvestmentType.SAFE, polishFundsList);
+        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
+        requestDto.setAmount(amount);
+        requestDto.setType(InvestmentType.SAFE);
+        requestDto.setFund(polishFundsList);
+
+        FundAllocationsDto result = allocationService.getAllocation(requestDto);
 
         Mockito.verify(fundRepository, Mockito.times(3))
                 .findByFundTypeAndIdIn(Mockito.any(FundType.class), Mockito.eq(polishFundsList));
@@ -111,8 +109,12 @@ public class AllocationServiceTest {
 
     @Test
     public void testGetAllocation_withSafeTypeAndOnlyPolishFundsAndSmallAmount_returnsValidData() {
-        FundAllocationsDto result = allocationService.getAllocation(BigInteger.valueOf(5), InvestmentType.SAFE,
-                polishFundsList);
+        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
+        requestDto.setAmount(BigInteger.valueOf(5));
+        requestDto.setType(InvestmentType.SAFE);
+        requestDto.setFund(polishFundsList);
+
+        FundAllocationsDto result = allocationService.getAllocation(requestDto);
 
         Mockito.verify(fundRepository, Mockito.times(3))
                 .findByFundTypeAndIdIn(Mockito.any(FundType.class), Mockito.eq(polishFundsList));
@@ -127,8 +129,12 @@ public class AllocationServiceTest {
 
     @Test
     public void testGetAllocation_withSafeTypeAndOnlyPolishFundsAndVerySmallAmount_returnsValidData() {
-        FundAllocationsDto result = allocationService.getAllocation(BigInteger.valueOf(3), InvestmentType.SAFE,
-                polishFundsList);
+        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
+        requestDto.setAmount(BigInteger.valueOf(3));
+        requestDto.setType(InvestmentType.SAFE);
+        requestDto.setFund(polishFundsList);
+
+        FundAllocationsDto result = allocationService.getAllocation(requestDto);
 
         Mockito.verify(fundRepository, Mockito.times(3))
                 .findByFundTypeAndIdIn(Mockito.any(FundType.class), Mockito.eq(polishFundsList));
@@ -139,7 +145,12 @@ public class AllocationServiceTest {
 
     @Test
     public void testGetAllocation_withSafeTypeAndAllFunds_returnsValidData() {
-        FundAllocationsDto result = allocationService.getAllocation(amount, InvestmentType.SAFE, allFundsList);
+        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
+        requestDto.setAmount(amount);
+        requestDto.setType(InvestmentType.SAFE);
+        requestDto.setFund(allFundsList);
+
+        FundAllocationsDto result = allocationService.getAllocation(requestDto);
         result.getAllocations().sort(fundAllocationComparator);
 
         Mockito.verify(fundRepository, Mockito.times(3))
@@ -176,7 +187,12 @@ public class AllocationServiceTest {
 
     @Test
     public void testGetAllocation_withAggressiveTypeAndAllFunds_returnsValidData() {
-        FundAllocationsDto result = allocationService.getAllocation(amount, InvestmentType.AGGRESSIVE, allFundsList);
+        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
+        requestDto.setAmount(amount);
+        requestDto.setType(InvestmentType.AGGRESSIVE);
+        requestDto.setFund(allFundsList);
+
+        FundAllocationsDto result = allocationService.getAllocation(requestDto);
         result.getAllocations().sort(fundAllocationComparator);
 
         Mockito.verify(fundRepository, Mockito.times(3))
@@ -213,7 +229,12 @@ public class AllocationServiceTest {
 
     @Test
     public void testGetAllocation_withBalancedTypeAndAllFunds_returnsValidData() {
-        FundAllocationsDto result = allocationService.getAllocation(amount, InvestmentType.BALANCED, allFundsList);
+        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
+        requestDto.setAmount(amount);
+        requestDto.setType(InvestmentType.BALANCED);
+        requestDto.setFund(allFundsList);
+
+        FundAllocationsDto result = allocationService.getAllocation(requestDto);
         result.getAllocations().sort(fundAllocationComparator);
 
         Mockito.verify(fundRepository, Mockito.times(3))
@@ -250,8 +271,12 @@ public class AllocationServiceTest {
 
     @Test
     public void testGetAllocation_withSafeTypeAndAllFundsAndNonAllocatableAmount_returnsValidData() {
-        FundAllocationsDto result = allocationService.getAllocation(BigInteger.valueOf(10001),
-                InvestmentType.SAFE, allFundsList);
+        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
+        requestDto.setAmount(BigInteger.valueOf(10001));
+        requestDto.setType(InvestmentType.SAFE);
+        requestDto.setFund(allFundsList);
+
+        FundAllocationsDto result = allocationService.getAllocation(requestDto);
         result.getAllocations().sort(fundAllocationComparator);
 
         Mockito.verify(fundRepository, Mockito.times(3))

@@ -1,7 +1,6 @@
 package net.malpiszon.fundallocator.controllers;
 
-import java.math.BigInteger;
-import java.util.List;
+import javax.validation.Valid;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -9,13 +8,11 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import net.malpiszon.fundallocator.dtos.FundAllocationRequestDto;
 import net.malpiszon.fundallocator.dtos.FundAllocationsDto;
-import net.malpiszon.fundallocator.models.InvestmentType;
 import net.malpiszon.fundallocator.services.impls.AllocationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(description = "Allocation of investment amount for chosen investment funds and investment type")
 public class AllocationController {
 
+    private final AllocationService allocationService;
 
-    @Autowired
-    private AllocationService allocationService;
+    public AllocationController(AllocationService allocationService) {
+        this.allocationService = allocationService;
+    }
 
     @ApiOperation(value = "List energy consumption in given period grouped by given period")
     @ApiResponses(value = {
@@ -43,15 +42,7 @@ public class AllocationController {
                     dataType = "integer", paramType = "query")
     })
     @RequestMapping(method = RequestMethod.GET)
-    public FundAllocationsDto getAllocation(@RequestParam(value = "amount") BigInteger amount,
-                                          @RequestParam(value = "type") String type,
-                                          @RequestParam(value = "fund") List<Long> funds)
-            throws IllegalArgumentException {
-
-        if (amount.compareTo(BigInteger.ZERO) <= 0) {
-            throw new IllegalArgumentException("Non-positive amount");
-        }
-
-        return allocationService.getAllocation(amount, InvestmentType.getInvestmentType(type), funds);
+    public FundAllocationsDto getAllocation(@Valid FundAllocationRequestDto requestDto) {
+        return allocationService.getAllocation(requestDto);
     }
 }
