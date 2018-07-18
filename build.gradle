@@ -4,9 +4,13 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.2"
 	}
 }
 
@@ -14,7 +18,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
+apply plugin: "com.github.spotbugs"
 apply plugin: 'pmd'
 apply plugin: 'jacoco'
 
@@ -43,19 +47,6 @@ dependencies {
 
 checkstyle {
     toolVersion = "7.6"
-}
-
-findbugs {
-    ignoreFailures = false
-    toolVersion = "3.0.1"
-    effort = "max"
-    reportsDir = file("$project.buildDir/reports/findbugs")
-}
-
-findbugsMain {
-    reports {
-        xml.enabled = true
-    }
 }
 
 pmd {

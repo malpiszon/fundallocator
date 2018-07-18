@@ -72,15 +72,8 @@ public class AllocationControllerTest {
 
     @Test
     public void testGetAllocation_withValidParameters_returnsOk() throws Exception {
-        BigInteger amount = BigInteger.valueOf(100);
-        InvestmentType investmentType = InvestmentType.BALANCED;
         long fundId1 = 1L;
         long fundId2 = 2L;
-        List<Long> fundIds = Lists.newArrayList(fundId1, fundId2);
-        FundAllocationRequestDto requestDto = new FundAllocationRequestDto();
-        requestDto.setAmount(amount);
-        requestDto.setType(investmentType);
-        requestDto.setFund(fundIds);
         FundType fundType = FundType.POLISH;
 
         FundAllocationsDto result = new FundAllocationsDto();
@@ -102,9 +95,9 @@ public class AllocationControllerTest {
 
         ArgumentCaptor<FundAllocationRequestDto> fardCaptor = ArgumentCaptor.forClass(FundAllocationRequestDto.class);
         verify(allocationService, times(1)).getAllocation(fardCaptor.capture());
-        assertEquals(amount, fardCaptor.getValue().getAmount());
-        assertEquals(investmentType, fardCaptor.getValue().getType());
-        assertEquals(fundIds, fardCaptor.getValue().getFund());
+        assertEquals(BigInteger.valueOf(100), fardCaptor.getValue().getAmount());
+        assertEquals(InvestmentType.BALANCED, fardCaptor.getValue().getType());
+        assertEquals(Lists.newArrayList(fundId1, fundId2), fardCaptor.getValue().getFund());
         verifyNoMoreInteractions(allocationService);
     }
 }
